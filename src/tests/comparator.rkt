@@ -1,0 +1,41 @@
+#lang racket
+
+(require
+  "../assembler.rkt")
+
+(provide (all-defined-out))
+
+(define test-cases
+  (list
+    (list (BEQ  1 2 3)  10  20 #f)
+    (list (BEQ  1 2 3)  10  10 #t)
+    (list (BEQ  1 2 3) -10 -20 #f)
+    (list (BEQ  1 2 3) -10 -10 #t)
+    (list (BNE  1 2 3)  10  20 #t)
+    (list (BNE  1 2 3)  10  10 #f)
+    (list (BNE  1 2 3) -10 -20 #t)
+    (list (BNE  1 2 3) -10 -10 #f)
+    (list (BLT  1 2 3)  10  20 #t)
+    (list (BLT  1 2 3) -10  20 #t)
+    (list (BLT  1 2 3)  10 -20 #f)
+    (list (BLT  1 2 3)  10  10 #f)
+    (list (BLT  1 2 3) -10 -10 #f)
+    (list (BLT  1 2 3) -10 -20 #f)
+    (list (BGE  1 2 3)  10  20 #f)
+    (list (BGE  1 2 3) -10  20 #f)
+    (list (BGE  1 2 3)  10 -20 #t)
+    (list (BGE  1 2 3)  10  10 #t)
+    (list (BGE  1 2 3) -10 -10 #t)
+    (list (BGE  1 2 3) -10 -20 #t)
+    (list (BLTU 1 2 3)  10  20 #t)
+    (list (BLTU 1 2 3) -10  20 #f)
+    (list (BLTU 1 2 3)  10 -20 #t)
+    (list (BLTU 1 2 3)  10  10 #f)
+    (list (BLTU 1 2 3) -10 -10 #f)
+    (list (BLTU 1 2 3) -10 -20 #f)
+    (list (BGEU 1 2 3)  10  20 #f)
+    (list (BGEU 1 2 3) -10  20 #t)
+    (list (BGEU 1 2 3)  10 -20 #f)
+    (list (BGEU 1 2 3)  10  10 #t)
+    (list (BGEU 1 2 3) -10 -10 #t)
+    (list (BGEU 1 2 3) -10 -20 #t)))
