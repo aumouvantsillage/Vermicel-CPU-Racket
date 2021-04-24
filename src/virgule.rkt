@@ -41,7 +41,7 @@
 
   ;
   ; Instruction decoding:
-  ; decode, read registers, select ALU and comparator operands.
+  ; decode, read registers, select ALU operands.
   ;
 
   (define instr     (decoder (signal-proxy rdata-reg)))
@@ -81,7 +81,8 @@
                                 #:enable  execute-en
                                 #:irq     irq
                                 #:instr   instr-reg
-                                #:taken   (comparator instr-reg xs1-reg xs2-reg)
+                                #:xs1     xs1-reg
+                                #:xs2     xs2-reg
                                 #:address alu-result
                                 #:pc+4    (signal-proxy pc+4))))
   (define pc+4 (for/signal (pc-reg)

@@ -13,7 +13,7 @@
   word signed-word
   in? signal-and signal-or signal-and-not signal-if
   (struct-out instruction) instr-nop
-  decoder arith-logic-unit comparator
+  decoder arith-logic-unit
   register-unit branch-unit load-store-unit)
 
 
@@ -132,7 +132,8 @@
 
 
 (define (branch-unit #:reset reset #:enable enable #:irq irq
-                     #:instr instr #:taken taken #:address address #:pc+4 pc+4)
+                     #:instr instr #:xs1 xs1 #:xs2 xs2 #:address address #:pc+4 pc+4)
+  (define taken (comparator instr xs1 xs2))
   (define pc-target (for/signal (instr [mepc (signal-proxy mepc)] address taken pc+4)
                       (define aligned-address (unsigned-concat [address 31 2] [0 1 0]))
                       (cond [(instruction-mret? instr)               mepc]
