@@ -21,16 +21,16 @@
 
   (define state-reg (register/r 'state-fetch reset
                       (for/signal (instr ready [state this-reg])
-                        (case state
-                          [(state-fetch)     (if ready 'state-decode state)]
-                          [(state-decode)    'state-execute]
-                          [(state-execute)   (cond [(instruction-load?   instr) 'state-load]
-                                                   [(instruction-store?  instr) 'state-store]
-                                                   [(instruction-has-rd? instr) 'state-writeback]
-                                                   [else                        'state-fetch])]
-                          [(state-load)      (if ready 'state-writeback state)]
-                          [(state-store)     (if ready 'state-fetch state)]
-                          [(state-writeback) 'state-fetch]))))
+                        (match state
+                          ['state-fetch     (if ready 'state-decode state)]
+                          ['state-decode    'state-execute]
+                          ['state-execute   (cond [(instruction-load?   instr) 'state-load]
+                                                  [(instruction-store?  instr) 'state-store]
+                                                  [(instruction-has-rd? instr) 'state-writeback]
+                                                  [else                        'state-fetch])]
+                          ['state-load      (if ready 'state-writeback state)]
+                          ['state-store     (if ready 'state-fetch state)]
+                          ['state-writeback 'state-fetch]))))
 
   (define (state-equal? sym)
     (for/signal (state-reg)

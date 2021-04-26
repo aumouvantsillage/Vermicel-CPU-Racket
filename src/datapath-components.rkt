@@ -87,18 +87,18 @@
   (define sa (signed-word a))
   (define sb (signed-word b))
   (define sh (unsigned-slice b 5 0))
-  (word (case (instruction-alu-fn instr)
-          [(alu-nop)  b]
-          [(alu-add)  (+ a b)]
-          [(alu-sub)  (- a b)]
-          [(alu-slt)  (if (< sa sb) 1 0)]
-          [(alu-sltu) (if (< a  b)  1 0)]
-          [(alu-xor)  (bitwise-xor a b)]
-          [(alu-or)   (bitwise-ior a b)]
-          [(alu-and)  (bitwise-and a b)]
-          [(alu-sll)  (arithmetic-shift a     sh)]
-          [(alu-srl)  (arithmetic-shift a  (- sh))]
-          [(alu-sra)  (arithmetic-shift sa (- sh))])))
+  (word (match (instruction-alu-fn instr)
+          ['alu-nop  b]
+          ['alu-add  (+ a b)]
+          ['alu-sub  (- a b)]
+          ['alu-slt  (if (< sa sb) 1 0)]
+          ['alu-sltu (if (< a  b)  1 0)]
+          ['alu-xor  (bitwise-xor a b)]
+          ['alu-or   (bitwise-ior a b)]
+          ['alu-and  (bitwise-and a b)]
+          ['alu-sll  (arithmetic-shift a     sh)]
+          ['alu-srl  (arithmetic-shift a  (- sh))]
+          ['alu-sra  (arithmetic-shift sa (- sh))])))
 
 
 (define-signal (comparator instr a b)
