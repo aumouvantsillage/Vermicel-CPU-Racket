@@ -34,14 +34,15 @@ It makes use of these modules:
 * `signal.rkt`: an implementation of hardware signals as data streams.
 * `logic.rkt`: helpers to manipulate fixed-width binary data.
 
-To integrate Virgule in a system, you can use these modules:
+To integrate Virgule in a system, you can use:
 
-* `memory.rkt`: memory component descriptions.
+* `memory.rkt`: memory components.
 * `device.rkt`: helpers to represent devices in the address map.
 
-RISC-V programs can be created using this module:
+These modules can help create programs and analyze the behavior of a system:
 
 * `assembler.rkt`: functions to generate machine code from assembly programs written as S-expressions.
+* `vcd.rkt`: output signals to VCD (Value Change Dump) files.
 
 The `examples` folder shows how a simple computer system can be described
 and run with a small program:
