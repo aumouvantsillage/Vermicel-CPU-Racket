@@ -191,11 +191,16 @@
     "assembler.rkt")
 
 
+  (define (fake-asm data)
+    (if (procedure? data)
+      (data #f #f)
+      data))
+
   (define (test-decoder)
     (define test-count (length dec/test-cases))
 
-    (define lst-data     (map first dec/test-cases))
-    (define lst-expected (map rest  dec/test-cases))
+    (define lst-data     (map fake-asm (map first dec/test-cases)))
+    (define lst-expected               (map rest  dec/test-cases))
 
     (define sig-instr  (decoder (list->signal lst-data)))
     (define lst-result (signal-take sig-instr test-count))
@@ -220,10 +225,10 @@
   (define (test-arith-logic-unit)
     (define test-count (length alu/test-cases))
 
-    (define lst-data               (map first  alu/test-cases))
-    (define lst-a        (map word (map second alu/test-cases)))
-    (define lst-b        (map word (map third  alu/test-cases)))
-    (define lst-expected (map word (map fourth alu/test-cases)))
+    (define lst-data     (map fake-asm (map first  alu/test-cases)))
+    (define lst-a        (map word     (map second alu/test-cases)))
+    (define lst-b        (map word     (map third  alu/test-cases)))
+    (define lst-expected (map word     (map fourth alu/test-cases)))
 
     (define sig-instr  (decoder (list->signal lst-data)))
     (define lst-instr  (signal-take sig-instr test-count))
@@ -246,10 +251,10 @@
   (define (test-comparator)
     (define test-count (length cmp/test-cases))
 
-    (define lst-data               (map first  cmp/test-cases))
-    (define lst-a        (map word (map second cmp/test-cases)))
-    (define lst-b        (map word (map third  cmp/test-cases)))
-    (define lst-expected           (map fourth cmp/test-cases))
+    (define lst-data     (map fake-asm (map first  cmp/test-cases)))
+    (define lst-a        (map word     (map second cmp/test-cases)))
+    (define lst-b        (map word     (map third  cmp/test-cases)))
+    (define lst-expected               (map fourth cmp/test-cases))
 
     (define sig-instr  (decoder (list->signal lst-data)))
     (define lst-instr  (signal-take sig-instr test-count))
@@ -272,12 +277,12 @@
   (define (test-register-unit)
     (define test-count (length reg/test-cases))
 
-    (define lst-src-data     (map first  reg/test-cases))
-    (define lst-dest-data    (map second  reg/test-cases))
-    (define lst-enable       (map third reg/test-cases))
-    (define lst-xd           (map word (map fourth reg/test-cases)))
-    (define lst-expected-xs1 (map word (map fifth  reg/test-cases)))
-    (define lst-expected-xs2 (map word (map sixth  reg/test-cases)))
+    (define lst-src-data     (map fake-asm (map first  reg/test-cases)))
+    (define lst-dest-data    (map fake-asm (map second reg/test-cases)))
+    (define lst-enable                     (map third  reg/test-cases))
+    (define lst-xd           (map word     (map fourth reg/test-cases)))
+    (define lst-expected-xs1 (map word     (map fifth  reg/test-cases)))
+    (define lst-expected-xs2 (map word     (map sixth  reg/test-cases)))
 
     (define sig-src-instr (decoder (list->signal lst-src-data)))
     (define lst-src-instr (signal-take sig-src-instr test-count))

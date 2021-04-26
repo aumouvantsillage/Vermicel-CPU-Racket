@@ -126,11 +126,16 @@
   (require rackunit)
   (require "tests/virgule.rkt")
 
+  (define (fake-asm data)
+    (if (procedure? data)
+      (data #f #f)
+      (word data)))
+
   (define test-count (length test-cases))
 
-  (define lst-rdata    (map word (map first   test-cases)))
-  (define lst-ready              (map second  test-cases))
-  (define lst-irq                (map third   test-cases))
+  (define lst-rdata    (map fake-asm (map first  test-cases)))
+  (define lst-ready                  (map second test-cases))
+  (define lst-irq                    (map third  test-cases))
   (define lst-expected (for/list ([c (in-list test-cases)])
                          (drop c 3)))
 
