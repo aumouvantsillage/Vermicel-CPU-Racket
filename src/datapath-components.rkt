@@ -138,7 +138,7 @@
 (define (branch-unit #:reset reset #:enable enable #:irq irq
                      #:instr instr #:xs1 xs1 #:xs2 xs2 #:address address #:pc+4 pc+4)
   (define taken (comparator instr xs1 xs2))
-  (define pc-target (for/signal (instr [mepc (signal-proxy mepc)] address taken pc+4)
+  (define pc-target (for/signal (instr [mepc (signal-proxy mepc-reg)] address taken pc+4)
                       (define aligned-address (unsigned-concat [address 31 2] [0 1 0]))
                       (cond [(instruction-mret? instr)               mepc]
                             [(instruction-jump? instr)               aligned-address]
@@ -150,35 +150,38 @@
                                   [irq                       #t]
                                   [else                      state]))))
   (define accept-irq (signal-and-not irq irq-state-reg))
-  (define mepc (register/re 0 reset
-                 (signal-and enable accept-irq) pc-target))
+  (define mepc-reg (register/re 0 reset (signal-and enable accept-irq)
+                     pc-target))
   (signal-if accept-irq
              (signal irq-addr)
              pc-target))
 
 
-(define-signal (load-store-unit #:instr instr #:address address #:rdata rdata
-                                #:store-enable store-enable #:store-data store-data)
-  #:returns (load-data wstrobe wdata)
+(define-signal (load-store-unit #:instr instr #:address address
+                                #:store-enable store-enable #:store-data store-data
+                                #:rdata rdata)
+  #:returns (wstrobe wdata load-data)
   (define align         (unsigned-slice address 1 0))
+  ; Store.
+  (define wdata (match (instruction-funct3 instr)
+                  [(== funct3-lb-sb) (unsigned-concat [store-data 7 0]  [store-data 7  0] [store-data 7 0] [store-data 7 0])]
+                  [(== funct3-lh-sh) (unsigned-concat [store-data 15 0] [store-data 15 0])]
+                  [_                 store-data]))
+  (define wstrobe (if store-enable
+                    (match (instruction-funct3 instr)
+                      [(or (== funct3-lb-sb) (== funct3-lbu)) (arithmetic-shift #b0001 align)]
+                      [(or (== funct3-lh-sh) (== funct3-lhu)) (arithmetic-shift #b0011 align)]
+                      [(== funct3-lw-sw)                      #b1111]
+                      [_                                      #b0000])
+                    #b0000))
+  ; Load.
   (define aligned-rdata (unsigned-slice rdata 31 (* 8 align)))
   (define load-data (word (match (instruction-funct3 instr)
                             [(== funct3-lb-sb) (signed-slice   aligned-rdata  7 0)]
                             [(== funct3-lh-sh) (signed-slice   aligned-rdata 15 0)]
                             [(== funct3-lbu)   (unsigned-slice aligned-rdata  7 0)]
                             [(== funct3-lhu)   (unsigned-slice aligned-rdata 15 0)]
-                            [_                                 aligned-rdata])))
-  (define wdata (match (instruction-funct3 instr)
-                  [(== funct3-lb-sb) (unsigned-concat [store-data 7 0]  [store-data 7  0] [store-data 7 0] [store-data 7 0])]
-                  [(== funct3-lh-sh) (unsigned-concat [store-data 15 0] [store-data 15 0])]
-                  [_                 store-data]))
-  (define wstrobe (if (not store-enable)
-                    #b0000
-                    (match (instruction-funct3 instr)
-                      [(or (== funct3-lb-sb) (== funct3-lbu)) (arithmetic-shift #b0001 align)]
-                      [(or (== funct3-lh-sh) (== funct3-lhu)) (arithmetic-shift #b0011 align)]
-                      [(== funct3-lw-sw)                      #b1111]
-                      [_                                      #b0000]))))
+                            [_                                 aligned-rdata]))))
 
 
 (module+ test

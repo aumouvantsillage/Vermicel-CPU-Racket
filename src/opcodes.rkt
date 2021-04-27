@@ -50,7 +50,7 @@
 ; Immediate-encoded opcodes.
 (define imm-mret #b001100000010)
 
-(define (immediate-format opcode)
+(define (instruction-fmt opcode)
   (match opcode
     [(== opcode-op)                         'fmt-r]
     [(== opcode-store)                      'fmt-s]
@@ -61,7 +61,7 @@
 
 (define (word->fields w)
   (define opcode (unsigned-slice w 6 0))
-  (define imm (match (immediate-format opcode)
+  (define imm (match (instruction-fmt opcode)
                 ['fmt-i (signed-concat [w 31 20])]
                 ['fmt-s (signed-concat [w 31 25] [w 11 7])]
                 ['fmt-b (signed-concat [w 31] [w 7] [w 30 25] [w 11 8] [0 0])]
@@ -85,7 +85,7 @@
                  (unsigned-concat [fn7 6 0] [imm 4 0])
                  imm))
 
-  (match (immediate-format opcode)
+  (match (instruction-fmt opcode)
     ;                                31       30 25      24 21       20       19 15      14 12      11 8        7          6 0
     ['fmt-i (unsigned-concat  [imm* 11                               0] [rs1  4  0] [fn3 2  0] [rd  4          0] [opcode 6 0])]
     ['fmt-s (unsigned-concat  [imm  11           5] [rs2 4           0] [rs1  4  0] [fn3 2  0] [imm 4          0] [opcode 6 0])]

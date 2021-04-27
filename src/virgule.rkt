@@ -61,9 +61,9 @@
   (define xs2-reg (register/e 0 decode-en xs2))
 
   (define alu-a-reg (register/e 0 decode-en
-                      (for/signal (instr xs1 [pc-reg (signal-proxy pc-reg)])
+                      (for/signal (instr xs1 [pc (signal-proxy pc-reg)])
                         (if (instruction-use-pc? instr)
-                          pc-reg
+                          pc
                           xs1))))
   (define alu-b-reg (register/e 0 decode-en
                       (for/signal (instr xs2)
@@ -99,16 +99,15 @@
   ;
 
   (define rdata-reg (register/e 0 (signal-and valid ready) rdata))
+  (define valid     (signal-or fetch-en store-en load-en))
+  (define address   (signal-if fetch-en pc-reg alu-result-reg))
 
-  (define valid   (signal-or fetch-en store-en load-en))
-  (define address (signal-if fetch-en pc-reg alu-result-reg))
-
-  (define-values (load-data wstrobe wdata)
+  (define-values (wstrobe wdata load-data)
     (load-store-unit #:instr        instr-reg
                      #:address      alu-result-reg
-                     #:rdata        rdata-reg
                      #:store-enable store-en
-                     #:store-data   xs2-reg))
+                     #:store-data   xs2-reg
+                     #:rdata        rdata-reg))
 
   ;
   ; Register update.
