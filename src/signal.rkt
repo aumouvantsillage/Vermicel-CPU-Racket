@@ -12,7 +12,7 @@
 
 (provide
   signal?
-  signal-proxy
+  signal-defer
   signal-cons
   signal-first
   signal-rest
@@ -54,7 +54,7 @@
 
 ; Delay the evaluation of a signal.
 ; This can be used when we need to reference a signal that is constructed later.
-(define-simple-macro (signal-proxy sig)
+(define-simple-macro (signal-defer sig)
   (thunk (signal-force sig)))
 
 ; Construct a signal with a given value, followed by the given signal.

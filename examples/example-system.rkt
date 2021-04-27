@@ -32,8 +32,8 @@
   ; Virgule core instance.
   (define-values (valid address wstrobe wdata)
     (virgule #:reset (signal #f)
-             #:rdata (signal-proxy rdata)
-             #:ready (signal-proxy ready)
+             #:rdata (signal-defer rdata)
+             #:ready (signal-defer ready)
              #:irq   (signal #f)))
 
   ; Address decoding.

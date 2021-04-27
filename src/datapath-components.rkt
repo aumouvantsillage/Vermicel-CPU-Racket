@@ -138,7 +138,7 @@
 (define (branch-unit #:reset reset #:enable enable #:irq irq
                      #:instr instr #:xs1 xs1 #:xs2 xs2 #:address address #:pc+4 pc+4)
   (define taken (comparator instr xs1 xs2))
-  (define pc-target (for/signal (instr [mepc (signal-proxy mepc-reg)] address taken pc+4)
+  (define pc-target (for/signal (instr [mepc (signal-defer mepc-reg)] address taken pc+4)
                       (define aligned-address (unsigned-concat [address 31 2] [0 1 0]))
                       (cond [(instruction-mret? instr)               mepc]
                             [(instruction-jump? instr)               aligned-address]

@@ -74,7 +74,7 @@
       (define (output-port-set sig)
         (output-field-set self sig)) ...
       ; Create local proxies for ports that are not associated with signals yet.
-      (let ([port.name (or (port-ref self) (signal-proxy (port-ref self)))] ...)
+      (let ([port.name (or (port-ref self) (signal-defer (port-ref self)))] ...)
         (syntax-parameterize ([this-instance (make-rename-transformer #'self)])
           body ...))
       self)))

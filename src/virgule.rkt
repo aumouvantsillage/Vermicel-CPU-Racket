@@ -48,20 +48,20 @@
   ; decode, read registers, select ALU operands.
   ;
 
-  (define instr     (decoder (signal-proxy rdata-reg)))
+  (define instr     (decoder (signal-defer rdata-reg)))
   (define instr-reg (register/e instr-nop decode-en instr))
 
   (define-values (xs1 xs2) (register-unit #:reset      reset
                                           #:enable     writeback-en
                                           #:src-instr  instr
                                           #:dest-instr instr-reg
-                                          #:xd         (signal-proxy xd)))
+                                          #:xd         (signal-defer xd)))
 
   (define xs1-reg (register/e 0 decode-en xs1))
   (define xs2-reg (register/e 0 decode-en xs2))
 
   (define alu-a-reg (register/e 0 decode-en
-                      (for/signal (instr xs1 [pc (signal-proxy pc-reg)])
+                      (for/signal (instr xs1 [pc (signal-defer pc-reg)])
                         (if (instruction-use-pc? instr)
                           pc
                           xs1))))
@@ -88,7 +88,7 @@
                                 #:xs1     xs1-reg
                                 #:xs2     xs2-reg
                                 #:address alu-result
-                                #:pc+4    (signal-proxy pc+4))))
+                                #:pc+4    (signal-defer pc+4))))
   (define pc+4 (for/signal (pc-reg)
                  (word (+ 4 pc-reg))))
   (define pc+4-reg (register/e 0 execute-en pc+4))
