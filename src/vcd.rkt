@@ -5,16 +5,23 @@
 #lang racket
 
 (require
+  syntax/parse/define
   "logic.rkt"
   "signal.rkt")
 
 (provide
+  waveforms
   (struct-out waveform)
   vcd)
 
 (struct waveform (name size sig))
 
-(define (vcd out ts duration . wavs)
+(define-simple-macro (waveforms (name size) ...)
+  (list
+    (waveform 'name size name)
+    ...))
+
+(define (vcd wavs duration ts out)
   ; Generate short names for signals.
   (define short-names (for/list ([n (in-range (length wavs))])
                         (format "s~a" n)))

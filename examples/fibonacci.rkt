@@ -6,12 +6,12 @@
 
 (require
   "../src/assembler.rkt"
-  "../src/interconnect.rkt"
+  "../src/device.rkt"
   "example-system.rkt")
 
 (define fibonacci
   (asm
-    (LI  t0 (device-start-address out-dev))
+    (LI  t0 (device-start-address txt-dev))
     (LI  t1 1)     ; The current value of the series
     (LI  t2 1)     ; The next value of the series
     'loop
@@ -21,8 +21,6 @@
     (MV  t2 t3)    ; Update the next value
     (J   'loop)))  ; Loop indefinitely
 
-(define sys (make-system fibonacci))
-
-(system-run sys 200
+(system-run fibonacci 200
   (open-output-file "virgule-fibonacci.vcd"
                     #:exists 'replace))

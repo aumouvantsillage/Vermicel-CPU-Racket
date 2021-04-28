@@ -6,12 +6,12 @@
 
 (require
   "../src/assembler.rkt"
-  "../src/interconnect.rkt"
+  "../src/device.rkt"
   "example-system.rkt")
 
 (define hello
   (asm
-    (LI    t0 (device-start-address out-dev))
+    (LI    t0 (device-start-address txt-dev))
     (LA    t1 'str)  ; The address of the string
     'loop
     (LBU   t2 t1 0)  ; Read a character from the string
@@ -23,8 +23,6 @@
     (bytes->words #:asciiz #t
       #"Virgule says\n<< Hello! >>\n")))
 
-(define sys (make-system hello))
-
-(system-run sys 500
+(system-run hello 500
   (open-output-file "virgule-hello.vcd"
                     #:exists 'replace))

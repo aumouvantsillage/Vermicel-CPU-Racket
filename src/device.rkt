@@ -4,7 +4,9 @@
 
 #lang racket
 
-(require "signal.rkt")
+(require
+  syntax/parse/define
+  "signal.rkt")
 
 (provide (all-defined-out))
 
@@ -37,3 +39,15 @@
 (define (device-word-address dev address)
   (for/signal (address)
     (device-word-address* dev address)))
+
+(define-simple-macro (device-ready-rdata valid address (dev dev-ready dev-rdata) ...)
+  (values
+    (for/signal (valid address dev-ready ...)
+      (and valid
+        (cond [(device-accepts? dev address) (and valid dev-ready)]
+              ...
+              [else valid])))
+    (for/signal (valid address dev-rdata ...)
+      (cond [(device-accepts? dev address) dev-rdata]
+            ...
+            [else 0]))))
