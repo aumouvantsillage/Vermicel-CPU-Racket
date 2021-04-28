@@ -23,7 +23,9 @@
   (displayln (format "---- ~a" title))
   (collect-garbage)
   (define init-mem-use (current-memory-use))
-  (time (signal-take sig duration))
+  (time (for/fold ([s sig] #:result (signal-first s))
+                  ([t (in-range duration)])
+          (signal-rest s)))
   (define final-mem-use (current-memory-use))
   (displayln (format "Memory use: initial=~aM final=~aM delta=~aM"
                (/ init-mem-use                   1e6)

@@ -101,19 +101,6 @@
           ['alu-sra  (arithmetic-shift sa (- sh))])))
 
 
-(define-signal (comparator instr a b)
-  (define sa (signed-word a))
-  (define sb (signed-word b))
-  (match (instruction-funct3 instr)
-    [(== funct3-beq)  (=      a  b)]
-    [(== funct3-bne)  (not (= a  b))]
-    [(== funct3-blt)  (<      sa sb)]
-    [(== funct3-bge)  (>=     sa sb)]
-    [(== funct3-bltu) (<      a  b)]
-    [(== funct3-bgeu) (>=     a  b)]
-    [_                #f]))
-
-
 ; Reading and writing happen in different stages.
 ; src-instr  is used when reading xs1 and xs2
 ; dest-instr is used when writing xd
@@ -135,15 +122,28 @@
     (define xs2 (nth x-reg (instruction-rs2 src-instr)))))
 
 
+(define (branch-taken? instr a b)
+  (and (instruction-branch? instr)
+       (let ([sa (signed-word a)]
+             [sb (signed-word b)])
+         (match (instruction-funct3 instr)
+           [(== funct3-beq)  (=      a  b)]
+           [(== funct3-bne)  (not (= a  b))]
+           [(== funct3-blt)  (<      sa sb)]
+           [(== funct3-bge)  (>=     sa sb)]
+           [(== funct3-bltu) (<      a  b)]
+           [(== funct3-bgeu) (>=     a  b)]
+           [_                #f]))))
+
+
 (define (branch-unit #:reset reset #:enable enable #:irq irq
                      #:instr instr #:xs1 xs1 #:xs2 xs2 #:address address #:pc+4 pc+4)
-  (define taken (comparator instr xs1 xs2))
-  (define pc-target (for/signal (instr [mepc (signal-defer mepc-reg)] address taken pc+4)
+  (define pc-target (for/signal (instr xs1 xs2 address pc+4 [mepc (signal-defer mepc-reg)])
                       (define aligned-address (unsigned-concat [address 31 2] [0 1 0]))
-                      (cond [(instruction-mret? instr)               mepc]
-                            [(instruction-jump? instr)               aligned-address]
-                            [(and (instruction-branch? instr) taken) aligned-address]
-                            [else                                    pc+4])))
+                      (cond [(instruction-mret? instr)     mepc]
+                            [(instruction-jump? instr)     aligned-address]
+                            [(branch-taken? instr xs1 xs2) aligned-address]
+                            [else                          pc+4])))
   (define irq-state-reg (register/re #f reset enable
                           (for/signal (instr irq [state this-reg])
                             (cond [(instruction-mret? instr) #f]
@@ -262,10 +262,7 @@
     (define sig-instr  (decoder (list->signal lst-data)))
     (define lst-instr  (signal-take sig-instr test-count))
 
-    (define sig-result (comparator sig-instr
-                                   (list->signal lst-a)
-                                   (list->signal lst-b)))
-    (define lst-result (signal-take sig-result test-count))
+    (define lst-result (map branch-taken? lst-instr lst-a lst-b))
 
     (for ([n test-count]
           [i (in-list lst-instr)]
