@@ -16,7 +16,7 @@
     (LI t0 (device-start-address tick-dev))
     (LI t1 1)
     (SB t1 t0 4) ; Acknowledge the interrupt request.
-    (LW t2 t0 0) ; Read the counter value.
+    (LW t2 t0)   ; Read the counter value.
     (LI t0 (device-start-address text-dev))
     (SW t2 t0)   ; Display the counter value.
     (MRET)
