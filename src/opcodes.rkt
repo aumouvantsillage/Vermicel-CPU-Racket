@@ -68,14 +68,13 @@
                 ['fmt-u (signed-concat [w 31 12] [0 11 0])]
                 ['fmt-j (signed-concat [w 31] [w 19 12] [w 20] [w 30 21] [0 0])]
                 [_      0]))
-  (values
-    opcode
-    (unsigned-slice w 11  7) ; rd
-    (unsigned-slice w 14 12) ; funct3
-    (unsigned-slice w 19 15) ; rs1
-    (unsigned-slice w 24 20) ; rs2
-    (unsigned-slice w 31 25) ; funct7
-    imm))
+  (values opcode
+          (unsigned-slice w 11  7) ; rd
+          (unsigned-slice w 14 12) ; funct3
+          (unsigned-slice w 19 15) ; rs1
+          (unsigned-slice w 24 20) ; rs2
+          (unsigned-slice w 31 25) ; funct7
+          imm))
 
 (define (fields->word opcode #:rd [rd 0] #:funct3 [fn3 0] #:rs1 [rs1 0] #:rs2 [rs2 0] #:funct7 [fn7 0] #:imm [imm 0])
   ; Immediate shift instructions have a funct7 field and a shorter imm field.

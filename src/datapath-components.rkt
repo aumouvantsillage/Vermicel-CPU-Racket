@@ -54,16 +54,16 @@
 
 (define (decode-alu-fn opcode funct3 funct7)
   (match (list     opcode                             funct3              funct7)
-    [(list     (== opcode-lui)                    _                   _                  ) 'alu-nop]
+    [(list     (== opcode-lui)                        _                   _              ) 'alu-nop]
     [(list     (== opcode-op)                     (== funct3-add-sub) (== funct7-sub-sra)) 'alu-sub]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-slt)     _                  ) 'alu-slt]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-sltu)    _                  ) 'alu-sltu]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-xor)     _                  ) 'alu-xor]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-or)      _                  ) 'alu-or]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-and)     _                  ) 'alu-and]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-sll)     _                  ) 'alu-sll]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-slt)         _              ) 'alu-slt]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-sltu)        _              ) 'alu-sltu]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-xor)         _              ) 'alu-xor]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-or)          _              ) 'alu-or]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-and)         _              ) 'alu-and]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-sll)         _              ) 'alu-sll]
     [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-srl-sra) (== funct7-sub-sra)) 'alu-sra]
-    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-srl-sra) _                  ) 'alu-srl]
+    [(list (or (== opcode-op-imm) (== opcode-op)) (== funct3-srl-sra)     _              ) 'alu-srl]
     [_                                                                                     'alu-add]))
 
 
