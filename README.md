@@ -37,7 +37,7 @@ It makes use of these modules:
 To integrate Virgule in a system, you can use:
 
 * `memory.rkt`: memory components.
-* `device.rkt`: helpers to represent devices in the address map.
+* `interconnect.rkt`: helpers to connect a processor with devices.
 
 These modules can help create programs and analyze the behavior of a system:
 

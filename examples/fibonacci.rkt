@@ -6,7 +6,7 @@
 
 (require
   "../src/assembler.rkt"
-  "../src/device.rkt"
+  "../src/interconnect.rkt"
   "example-system.rkt")
 
 (define fibonacci

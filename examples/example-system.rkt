@@ -6,7 +6,7 @@
 
 (require
   "../src/logic.rkt"
-  "../src/device.rkt"
+  "../src/interconnect.rkt"
   "../src/signal.rkt"
   "../src/virgule.rkt"
   "../src/memory.rkt"
