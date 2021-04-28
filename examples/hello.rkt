@@ -11,7 +11,7 @@
 
 (define hello
   (asm
-    (LI    t0 (device-start-address txt-dev))
+    (LI    t0 (device-start-address text-dev))
     (LA    t1 'str)  ; The address of the string
     'loop
     (LBU   t2 t1 0)  ; Read a character from the string

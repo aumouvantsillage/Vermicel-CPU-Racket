@@ -11,11 +11,11 @@
 
 (define fibonacci
   (asm
-    (LI  t0 (device-start-address txt-dev))
+    (LI  t0 (device-start-address text-dev))
     (LI  t1 1)     ; The current value of the series
     (LI  t2 1)     ; The next value of the series
     'loop
-    (SW  t1 t0 0)  ; Send the current value
+    (SW  t1 t0)    ; Send the current value
     (ADD t3 t2 t1) ; Compute a new value
     (MV  t1 t2)    ; Update the current value
     (MV  t2 t3)    ; Update the next value
