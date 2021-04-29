@@ -12,17 +12,16 @@
 (define hello
   (asm
     (LI    t0 (device-start-address text-dev))
-    (LA    t1 'str)  ; The address of the string
+    (LA    t1 'str) ; The address of the string
     'loop
-    (LBU   t2 t1 0)  ; Read a character from the string
-    (BEQZ  t2 0)     ; If zero, loop indefinitely
-    (SB    t2 t0 4)  ; Send the current character
-    (ADDI  t1 t1 1)  ; Move to the next location in the string
-    (J     'loop)    ; Loop
+    (LBU   t2 t1)   ; Read a character from the string
+    (BEQZ  t2 0)    ; If zero, loop indefinitely
+    (SB    t2 t0 4) ; Send the current character
+    (ADDI  t1 t1 1) ; Move to the next location in the string
+    (J     'loop)   ; Loop
     'str
     (bytes->words #:asciiz #t
       #"Virgule says\n<< Hello! >>\n")))
 
 (system-run hello 500
-  (open-output-file "virgule-hello.vcd"
-                    #:exists 'replace))
+  (open-output-file "virgule-hello.vcd" #:exists 'replace))

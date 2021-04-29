@@ -21,18 +21,17 @@
     (waveform 'name size name)
     ...))
 
-(define (vcd wavs duration ts out)
+(define (vcd wavs duration ts [out (current-output-port)])
   ; Generate short names for signals.
   (define short-names (for/list ([n (in-range (length wavs))])
                         (format "s~a" n)))
 
   ; VCD header.
-  (displayln (format "$timescale ~a $end" ts) out)
+  (fprintf out "$timescale ~a $end\n" ts)
   (for ([w (in-list wavs)]
         [s (in-list short-names)])
-    (displayln (format "$var wire ~a ~a ~a $end"
-                 (waveform-size w) s (waveform-name w)) out))
-  (displayln "$enddefinitions $end" out)
+    (fprintf out "$var wire ~a ~a ~a $end\n" (waveform-size w) s (waveform-name w)))
+  (fprintf out "$enddefinitions $end\n")
 
   ; Value changes.
   (for/fold ([sigs (map waveform-sig wavs)]
@@ -45,7 +44,7 @@
     ; If at least one signal changed.
     (unless (equal? current prev)
       ; Output a timestamp
-      (displayln (format "#~a" t) out)
+      (fprintf out "#~a\n" t)
 
       ; Output value changes.
       (for ([n (in-list short-names)]
@@ -57,9 +56,9 @@
                         [c           1]
                         [else        0]))
         (define fmt (if (= s 1)
-                      "~a~a"
-                      "b~a ~a"))
-        (displayln (format fmt v n) out)))
+                      "~a~a\n"
+                      "b~a ~a\n"))
+        (fprintf out fmt v n)))
 
     ; Continue with the rest of the signals.
     (values
@@ -67,4 +66,4 @@
       current))
 
   ; Last timestamp
-  (displayln (format "#~a" duration) out))
+  (fprintf out "#~a\n" duration))

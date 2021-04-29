@@ -47,9 +47,10 @@
 
 
 (define (tick-device #:valid valid #:address address #:wstrobe wstrobe #:wdata wdata)
-  ; Write 1 at address 0 to enable counting.
+  ; Controller must write 1 at address 0 to enable counting
+  ; (or odd value at even address)
   (define enable (register #f
-                   (for/signal (valid wstrobe address wdata)
+                   (for/signal (valid address wstrobe wdata this-reg)
                      (if (and valid (odd? wstrobe) (even? address))
                        (odd? wdata)
                        this-reg))))
@@ -59,13 +60,14 @@
                         (if done 0 (add1 this-reg)))))
   (define count-done (for/signal (enable count-reg)
                        (and enable (= count-reg count-max))))
-  ; Write 1 at address 1 to acknowledge IRQs.
+  ; Controller must write 1 at address 1 to acknowledge IRQs
+  ; (or odd value at odd address)
   (define irq (register #f
                 (for/signal (valid address wstrobe count-done this-reg)
                   (cond [count-done                                #t]
                         [(and valid (odd? wstrobe) (odd? address)) #f]
                         [else                                      this-reg]))))
-
+  ; Reading always returns the current counter value.
   (values valid count-reg irq))
 
 
