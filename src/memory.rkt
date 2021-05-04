@@ -44,4 +44,42 @@
                     0)))
   ; TODO Allow to customize the latency of read/write operations.
   ; At the moment, ready = valid.
-  (values valid rdata))
+  (define ready valid)
+  (values ready rdata))
+
+
+(define (dual-port-ram size [content empty]
+                       #:ro-valid ro-valid #:ro-address ro-address
+                       #:rw-valid rw-valid #:rw-address rw-address #:wstrobe wstrobe #:wdata wdata)
+  (define initial-content (for/pvector ([n (in-range size)])
+                            (if (< n (length content))
+                              (nth content n)
+                              0)))
+  (define mem (register initial-content
+                (for/signal (rw-valid rw-address rw-rdata wstrobe wdata this-reg)
+                  ; We don't use a register/e here.
+                  ; In register/e and register/re the input signal
+                  ; is evaluated even if the result is not used.
+                  ; In this specific case, it would create parallel versions of
+                  ; the register contents with fake write operations.
+                  (if (and rw-valid (not (zero? wstrobe)))
+                    (set-nth this-reg rw-address
+                      (unsigned-concat
+                        [(if (bitwise-bit-set? wstrobe 3) rw-wdata rw-rdata) 31 24]
+                        [(if (bitwise-bit-set? wstrobe 2) rw-wdata rw-rdata) 23 16]
+                        [(if (bitwise-bit-set? wstrobe 1) rw-wdata rw-rdata) 15  8]
+                        [(if (bitwise-bit-set? wstrobe 0) rw-wdata rw-rdata)  7  0]))
+                    this-reg))))
+  (define rw-rdata (for/signal (rw-valid rw-address mem)
+                     (if rw-valid
+                       (nth mem rw-address)
+                       0)))
+  (define ro-rdata (for/signal (ro-valid ro-address mem)
+                     (if ro-valid
+                       (nth mem ro-address)
+                       0)))
+  ; TODO Allow to customize the latency of read/write operations.
+  ; At the moment, ready = valid.
+  (define ro-ready ro-valid)
+  (define rw-ready rw-valid)
+  (values ro-ready ro-rdata rw-ready rw-rdata))
