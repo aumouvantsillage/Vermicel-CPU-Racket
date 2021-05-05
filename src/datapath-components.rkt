@@ -15,7 +15,7 @@
 
 (provide
   word signed-word
-  in? signal-and signal-or signal-and-not signal-if
+  member? and-not add4
   (struct-out instruction) instr-nop
   decoder arith-logic-unit
   register-unit branch-unit load-store-unit)
@@ -31,19 +31,14 @@
 (define reg-count 32)
 (define irq-addr   4)
 
-(define-simple-macro (in? v (elt ...))
+(define-simple-macro (member? v (elt ...))
   (not (not (member v (list elt ...)))))
 
-(define-signal (signal-and . lst)
-  (for/and ([v (in-list lst)]) v))
-
-(define-signal (signal-or . lst)
-  (for/or ([v (in-list lst)]) v))
-
-(define-signal (signal-and-not a b)
+(define (and-not a b)
   (and a (not b)))
 
-(define signal-if (signal-lift* if _ _ _))
+(define (add4 a)
+  (word (+ 4 a)))
 
 
 (struct instruction (rd funct3 rs1 rs2 imm
@@ -69,12 +64,12 @@
 
 (define-signal (decoder data)
   (define-values (opcode rd funct3 rs1 rs2 funct7 imm) (word->fields data))
-  (define use-pc?  (in? opcode (opcode-auipc opcode-jal opcode-branch)))
+  (define use-pc?  (member? opcode (opcode-auipc opcode-jal opcode-branch)))
   (define use-imm? (not (= opcode opcode-op)))
   (define load?    (= opcode opcode-load))
   (define store?   (= opcode opcode-store))
   (define mret?    (and (= opcode opcode-system) (= funct3 funct3-mret) (= imm imm-mret)))
-  (define jump?    (in? opcode (opcode-jal opcode-jalr)))
+  (define jump?    (member? opcode (opcode-jal opcode-jalr)))
   (define branch?  (= opcode opcode-branch))
   (define has-rd?  (nor branch? store? (zero? rd)))
   (define alu-fn   (decode-alu-fn opcode funct3 funct7))
@@ -138,9 +133,9 @@
 
 (define (branch-unit #:reset reset #:enable enable #:irq irq
                      #:instr instr #:xs1 xs1 #:xs2 xs2 #:address address #:pc+4 pc+4)
-  (define pc-target (for/signal (instr xs1 xs2 address pc+4 [mepc (signal-defer mepc-reg)])
+  (define pc-target (for/signal (instr xs1 xs2 address pc+4 mepc-reg)
                       (define aligned-address (unsigned-concat [address 31 2] [0 1 0]))
-                      (cond [(instruction-mret? instr)     mepc]
+                      (cond [(instruction-mret? instr)     mepc-reg]
                             [(instruction-jump? instr)     aligned-address]
                             [(branch-taken? instr xs1 xs2) aligned-address]
                             [else                          pc+4])))
@@ -149,12 +144,12 @@
                             (cond [(instruction-mret? instr) #f]
                                   [irq                       #t]
                                   [else                      state]))))
-  (define accept-irq (signal-and-not irq irq-state-reg))
-  (define mepc-reg (register/re 0 reset (signal-and enable accept-irq)
+  (define accept-irq (>> and-not irq irq-state-reg))
+  (define mepc-reg (register/re 0 reset (>> and enable accept-irq)
                      pc-target))
-  (signal-if accept-irq
-             (signal irq-addr)
-             pc-target))
+  (>> if accept-irq
+    (signal irq-addr)
+    pc-target))
 
 
 (define-signal (load-store-unit #:instr instr #:address address

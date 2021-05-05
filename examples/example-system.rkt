@@ -56,8 +56,8 @@
                        this-reg))))
   (define count-max (sub1 tick-period))
   (define count-reg (register/e 0 enable
-                      (for/signal (this-reg [done (signal-defer count-done)])
-                        (if done 0 (add1 this-reg)))))
+                      (for/signal (this-reg count-done)
+                        (if count-done 0 (add1 this-reg)))))
   (define count-done (for/signal (enable count-reg)
                        (and enable (= count-reg count-max))))
   ; Controller must write 1 at address 1 to acknowledge IRQs

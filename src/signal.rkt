@@ -31,7 +31,8 @@
   this-reg
   signal-bundle
   signal-unbundle
-  signal-bundle-vector)
+  signal-bundle-vector
+  >>)
 
 (struct signal (body)
   #:name             private-signal
@@ -92,6 +93,11 @@
 ; The last value is repeated indefinitely.
 (define-simple-macro (signal val ...)
   (list->signal (list val ...))) ; Pass the arguments as a list to list->signal.
+
+
+;
+; Lifting.
+;
 
 ; Convert f into a function that operates on signals.
 ; f must be a function.
@@ -163,7 +169,12 @@
 
 (define-simple-macro (for/signal (c:signal-for-clause ...) body ...)
   ; Create a lifted λ and apply it immediately to the given signals.
-  ((signal-λ (c.var ...) body ...) c.sig ...))
+  ((signal-λ (c.var ...) body ...) (signal-defer c.sig) ...))
+
+
+;
+; Registers.
+;
 
 (define-syntax-parameter this-reg
   (λ (stx)
@@ -221,6 +232,18 @@
     (vector-map signal-first vec)
     (signal-bundle-vector (vector-map signal-rest vec))))
 
+
+;
+; More syntactic sugar.
+;
+
+(define-simple-macro (>> name:id arg ...)
+  ((signal-lift* name arg ...) (signal-defer arg) ...))
+
+
+;
+; Tests.
+;
 
 (module+ test
   (require rackunit)

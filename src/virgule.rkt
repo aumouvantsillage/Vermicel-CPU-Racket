@@ -61,9 +61,9 @@
   (define xs2-reg (register/e 0 decode-en xs2))
 
   (define alu-a-reg (register/e 0 decode-en
-                      (for/signal (instr xs1 [pc (signal-defer pc-reg)])
+                      (for/signal (instr xs1 pc-reg)
                         (if (instruction-use-pc? instr)
-                          pc
+                          pc-reg
                           xs1))))
   (define alu-b-reg (register/e 0 decode-en
                       (for/signal (instr xs2)
@@ -80,6 +80,7 @@
   (define alu-result     (arith-logic-unit instr-reg alu-a-reg alu-b-reg))
   (define alu-result-reg (register/e 0 execute-en alu-result))
 
+  (define pc+4 (>> add4 pc-reg))
   (define pc-reg (register/re 0 reset execute-en
                    (branch-unit #:reset   reset
                                 #:enable  execute-en
@@ -88,9 +89,7 @@
                                 #:xs1     xs1-reg
                                 #:xs2     xs2-reg
                                 #:address alu-result
-                                #:pc+4    (signal-defer pc+4))))
-  (define pc+4 (for/signal (pc-reg)
-                 (word (+ 4 pc-reg))))
+                                #:pc+4    pc+4)))
   (define pc+4-reg (register/e 0 execute-en pc+4))
 
   ;
@@ -98,9 +97,9 @@
   ; align data to/from memory, drive control outputs.
   ;
 
-  (define rdata-reg (register/e 0 (signal-and valid ready) rdata))
-  (define valid     (signal-or fetch-en store-en load-en))
-  (define address   (signal-if fetch-en pc-reg alu-result-reg))
+  (define rdata-reg (register/e 0 (>> and valid ready) rdata))
+  (define valid     (>> or fetch-en store-en load-en))
+  (define address   (>> if fetch-en pc-reg alu-result-reg))
 
   (define-values (wstrobe wdata load-data)
     (load-store-unit #:instr        instr-reg

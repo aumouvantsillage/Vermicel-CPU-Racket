@@ -65,10 +65,10 @@
                   (if (and rw-valid (not (zero? wstrobe)))
                     (set-nth this-reg rw-address
                       (unsigned-concat
-                        [(if (bitwise-bit-set? wstrobe 3) rw-wdata rw-rdata) 31 24]
-                        [(if (bitwise-bit-set? wstrobe 2) rw-wdata rw-rdata) 23 16]
-                        [(if (bitwise-bit-set? wstrobe 1) rw-wdata rw-rdata) 15  8]
-                        [(if (bitwise-bit-set? wstrobe 0) rw-wdata rw-rdata)  7  0]))
+                        [(if (bitwise-bit-set? wstrobe 3) wdata rw-rdata) 31 24]
+                        [(if (bitwise-bit-set? wstrobe 2) wdata rw-rdata) 23 16]
+                        [(if (bitwise-bit-set? wstrobe 1) wdata rw-rdata) 15  8]
+                        [(if (bitwise-bit-set? wstrobe 0) wdata rw-rdata)  7  0]))
                     this-reg))))
   (define rw-rdata (for/signal (rw-valid rw-address mem)
                      (if rw-valid
