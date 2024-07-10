@@ -22,4 +22,4 @@
     (J   'loop)))  ; Loop indefinitely
 
 (system-run fibonacci 200
-  (open-output-file "virgule-fibonacci.vcd" #:exists 'replace))
+  (open-output-file "vermicel-fibonacci.vcd" #:exists 'replace))

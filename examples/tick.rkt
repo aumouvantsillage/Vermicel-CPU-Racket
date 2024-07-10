@@ -28,4 +28,4 @@
     (J  0)))   ; Loop indefinitely
 
 (system-run tick 500
-  (open-output-file "virgule-tick.vcd" #:exists 'replace))
+  (open-output-file "vermicel-tick.vcd" #:exists 'replace))

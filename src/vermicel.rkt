@@ -9,12 +9,12 @@
   "datapath-components.rkt")
 
 (provide
-  virgule)
+  vermicel)
 
 ; An implementation of a minimal RISC-V (RV32I) core.
 ; The interface is inspired by the PicoRV32
 ; The sequencer is a state machine.
-(define (virgule #:reset reset #:rdata rdata #:ready ready #:irq irq)
+(define (vermicel #:reset reset #:rdata rdata #:ready ready #:irq irq)
   ;
   ; Sequencer.
   ;
@@ -122,7 +122,7 @@
 
 (module+ test
   (require rackunit)
-  (require "tests/virgule.rkt")
+  (require "tests/vermicel.rkt")
 
   (define (fake-asm data)
     (if (procedure? data)
@@ -138,10 +138,10 @@
                          (drop c 3)))
 
   (define-values (sig-valid sig-address sig-wstrobe sig-wdata)
-    (virgule #:reset (signal #f)
-             #:rdata (list->signal lst-rdata)
-             #:ready (list->signal lst-ready)
-             #:irq   (list->signal lst-irq)))
+    (vermicel #:reset (signal #f)
+              #:rdata (list->signal lst-rdata)
+              #:ready (list->signal lst-ready)
+              #:irq   (list->signal lst-irq)))
   (define lst-result (map list
                        (signal-take sig-valid   test-count)
                        (signal-take sig-address test-count)
@@ -157,4 +157,4 @@
           [rv (in-list r)]
           [xv (in-list x)]
           #:when (not (equal? 'any xv)))
-      (test-equal? (format "Virgule #~a: ~a" n l) rv xv))))
+      (test-equal? (format "Vermicel #~a: ~a" n l) rv xv))))

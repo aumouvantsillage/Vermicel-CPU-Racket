@@ -21,7 +21,7 @@
     (J     'loop)   ; Loop
     'str
     (bytes->words #:asciiz #t
-      #"Virgule says\n<< Hello! >>\n")))
+      #"Vermicel says\n<< Hello! >>\n")))
 
 (system-run hello 500
-  (open-output-file "virgule-hello.vcd" #:exists 'replace))
+  (open-output-file "vermicel-hello.vcd" #:exists 'replace))

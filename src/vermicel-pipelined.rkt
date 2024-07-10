@@ -9,13 +9,13 @@
   "datapath-components.rkt")
 
 (provide
-  virgule-pipelined)
+  vermicel-pipelined)
 
 ; An implementation of a minimal RISC-V (RV32I) core.
 ; The interface is inspired by the PicoRV32
-; The sequencer is a state machine.
-(define (virgule-pipelined #:reset reset #:ro-rdata ro-rdata #:ro-ready ro-ready
-                           #:rw-rdata rw-rdata #:rw-ready rw-ready #:irq irq)
+; TODO Complete and test the implementation.
+(define (vermicel-pipelined #:reset reset #:ro-rdata ro-rdata #:ro-ready ro-ready
+                            #:rw-rdata rw-rdata #:rw-ready rw-ready #:irq irq)
 
   ;
   ; Pipeline control.

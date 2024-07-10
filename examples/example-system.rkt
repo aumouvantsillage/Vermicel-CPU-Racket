@@ -8,7 +8,7 @@
   "../src/logic.rkt"
   "../src/device.rkt"
   "../src/signal.rkt"
-  "../src/virgule.rkt"
+  "../src/vermicel.rkt"
   "../src/memory.rkt"
   "../src/vcd.rkt")
 
@@ -72,12 +72,12 @@
 
 
 (define (make-system program)
-  ; Virgule core instance.
+  ; Vermicel core instance.
   (define-values (valid address wstrobe wdata)
-    (virgule #:reset (signal #f)
-             #:rdata (signal-defer rdata)
-             #:ready (signal-defer ready)
-             #:irq   (signal-defer irq)))
+    (vermicel #:reset (signal #f)
+              #:rdata (signal-defer rdata)
+              #:ready (signal-defer ready)
+              #:irq   (signal-defer irq)))
 
   ; RAM instance.
   (define-values (ram-ready ram-rdata)
